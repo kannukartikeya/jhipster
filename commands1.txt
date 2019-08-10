@@ -1,0 +1,351 @@
+1. yo jhipster
+
+Browse generated files
+
+
+2. Run it in the development mode 
+./mvnw
+browse through the generated menu items
+
+
+3. Package and run in the production mode
+	a. Change version of jest to 23.5 for running ui lint based tests - change in package.json only in devdependencies section	
+	Add "ng2-charts": "^1.6.0" in dependencies
+	
+	b. Change pom.xml to 
+		<dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope> - delete this line as h2 driver needs to be there
+        </dependency>
+		
+	c.go to src/main/resources/config/application-prod.yml
+		spring:
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+        username: PROP_MGMNT
+        password:
+    h2:
+        console:
+            enabled: false
+    jpa:
+        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+        database: H2
+        show-sql: true
+        properties:
+            hibernate.id.new_generator_mappings: true
+            hibernate.cache.use_second_level_cache: false
+	
+	d. ./mvnw -Pprod package
+	
+			
+4. Sonarcube integration 
+
+	a.docker-compose -f src/main/docker/sonar.yml up -d  ( docker-compose -f src/main/docker/sonar.yml down)
+	
+	b./mvnw -Pprod sonar:sonar -Dsonar.host.url=http://localhost:9000
+	
+	c.check UI on localhost:9000
+
+
+5. Heroku Deployment - heroku details - kannu.kartikeya@gmail.com/R***@*01
+
+	a. heroku login
+		provide username/password
+
+	b.jhipster heroku - this should package your application in “production” mode, create an Heroku application with a database, upload your code, and start the application
+	
+			Your app should now be live. To view it run
+				heroku open
+			And you can view the logs with this command
+				heroku logs --tail
+			After application modification, redeploy it with
+				jhipster heroku
+			Congratulations, JHipster execution is complete!
+		
+	c.go to src/main/resources/config/application-heroku.yml 
+	spring:
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+        username: PROP_MGMNT
+        password:
+    h2:
+        console:
+            enabled: false
+    jpa:
+        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+        database: H2
+        show-sql: true
+        properties:
+            hibernate.id.new_generator_mappings: true
+            hibernate.cache.use_second_level_cache: false
+			
+
+
+	d.heroku apps:destroy - remove an app from cli
+	
+	
+6. Jenkins2 integration 
+
+	a. jhipster ci-cd ( select jenkins - pipeline) - it will generate Jenkins file which can be pushed to heroku git repo as below
+	
+	b. Change jenkins file to stop ui test coverage, append app name and remove sonar scannel 
+		
+		remove finally junit line
+		
+		stage('package and deploy') {
+			sh "./mvnw com.heroku.sdk:heroku-maven-plugin:1.1.1:deploy -DskipTests -Pprod -Dheroku.appName=taskmgmt"
+			archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+    	}
+		
+    	stage('quality analysis') {
+        		
+    	}
+
+
+	git add .
+	git commit -m "first commit"
+	git push --set-upstream https://git.heroku.com/taskmgmt.git master
+	
+	
+
+7. jdl development 
+
+jhipster import-jdl jhipster-jdl.jh
+
+app.module.ts,home.module.ts
+
+import { ChartsModule } from 'ng2-charts';
+imports: [
+ChartsModule
+]
+}
+
+
+/githubprojects/jhipster/TASKTEST/src/main/webapp/app/home/home.component.html
+
+         <div class="row" *ngSwitchCase="true">
+                       <div class="col-md-6 mb-3">
+                            <div class="card card-shadow p-3">
+                        <canvas baseChart
+                            [data]="barchartdata"
+                            [labels]="barChartLabels"
+                            [legend]="false"
+                            [chartType]="'bar'"
+                            >
+                        </canvas>
+                        </div>
+                    </div>
+         </div>
+		 
+
+
+home.component.ts 
+//public barchartdata = [0];
+public barchartdata = [10,20,30,40,50];
+//public barChartLabels: string[] = [];
+public barChartLabels: string[] = ["Jan","Feb","Mar","Apr","May"];
+		 
+		 
+
+TaskService(task.service.ts)
+	 private resourceUrl2 = SERVER_API_URL + 'api/records-this-month';
+	 	
+   thisMonth(req?: any): Observable<EntityResponseType> {
+        const options = createRequestOption(req);
+        return this.http
+            .get<ITask>(this.resourceUrl2, { params: options, observe: 'response' })
+            .map((res: EntityResponseType) => this.convertDateFromServer(res));
+    }
+
+
+
+
+home.component.ts - npm run webpack:prod
+
+import { JhiAlertService } from 'ng-jhipster';
+import { TaskService } from '../entities/task/task.service';
+import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+
+constructor(private principal: Principal, private loginModalService: LoginModalService, private eventManager: JhiEventManager,
+private taskService: TaskService, private jhiAlertService: JhiAlertService) 
+
+
+		//public barchartdata = [0];
+		public barchartdata = [10,20,30,40,50];
+	   //public barChartLabels: string[] = [];
+		public barChartLabels: string[] = ["Jan","Feb","Mar","Apr","May"];
+
+
+    public barChartOptions: any = {
+        scaleShowVerticalLines: false,
+        responsive: true,
+        title: {
+            text: 'MonthWise Task Distribution',
+            display: true
+        },
+        scales: {
+            yAxes: [{ id: 'y-axis-1', type: 'linear', position: 'left', ticks: { min: 0 } }]
+        }
+    };
+
+getIncomeExpenseForThisMonth() {
+        this.invoiceService.thisMonth().subscribe(
+            (res: any) => {
+
+                this.barchartdata = [];
+                for (let i = res.body.monthWiseIncomeStatistics.length - 1; i >= 0; i--) {
+                    this.barchartdata.push(res.body.monthWiseIncomeStatistics[i].actualTotal);
+					//this.barchartdata.push(10,20,30,40,50);
+                    this.barChartLabels.push(res.body.monthWiseIncomeStatistics[i].monthText);
+					//this.barChartLabels.push("Jan","Feb","Mar","Apr","May");
+                }
+            },
+            (res: HttpErrorResponse) => this.onError(res.message)
+        );
+    }
+	
+	private onError(errorMessage: string) {
+        this.jhiAlertService.error(errorMessage, null, null);
+    }
+	
+
+		 package com.jhispter.tasktest.web.rest.vm;
+class MonthWiseStatistics {
+	int month;
+	String monthText;
+    Double actualTotal;
+}
+	
+public class Statistics {
+	
+private Month month;
+private int year;
+private Double totalCount;
+
+private List<MonthWiseStatistics> monthWiseStatistics;
+
+}
+
+TaskResourceIntTest
+    @Test
+    @Transactional
+    public void getAllRecordsMonthWise() throws Exception{
+    	int databaseSizeBeforeCreate = taskRepository.findAll().size();
+    	LocalDate today = DEFAULT_DATEASSIGNED;
+        
+        int currentYear = today.getYear();
+    
+        LocalDate firstDay = today.with(firstDayOfYear()); // 2015-01-01          
+        LocalDate lastDay = today.with(lastDayOfYear()); // 2015-12-31
+        
+        createRecordsByMonth(firstDay, lastDay);
+        List<Task> tasklist1 = taskRepository.findByDateassignedAfterAndDateassignedBefore(firstDay, lastDay);
+        List<Task> taskList = taskRepository.findAll();
+        assertThat(taskList).hasSize(databaseSizeBeforeCreate + 1);
+        
+        List<MonthWiseStatistics> monthwiseList = taskRepository.getMonthlyScheduleAdherenceBySection(firstDay, lastDay);
+        assertThat(monthwiseList.size()>0);
+        for(MonthWiseStatistics stats:monthwiseList)
+        {
+        	System.out.println("Month is " + stats.getMonth());
+        }
+                     
+		// Get all recordList
+        /*restTaskMockMvc.perform(get("/api/records-this-month?sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    	*/
+    }
+	
+    private void createRecordsByMonth(LocalDate thisMonth, LocalDate lastMonth)  throws Exception{
+		// TODO Auto-generated method stub
+        restTaskMockMvc.perform(post("/api/tasks")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(task)))
+            .andExpect(status().isCreated());
+        
+	}
+	
+{
+    @Test
+    @Transactional
+    public void getAllRecordsMonthWise() throws Exception{
+    	int databaseSizeBeforeCreate = taskRepository.findAll().size();
+    	LocalDate today = DEFAULT_DATEASSIGNED;
+        
+        int currentYear = today.getYear();
+    
+        LocalDate firstDay = today.with(firstDayOfYear()); // 2015-01-01          
+        LocalDate lastDay = today.with(lastDayOfYear()); // 2015-12-31
+        
+        createRecordsByMonth(firstDay, lastDay);
+        List<Task> tasklist1 = taskRepository.findByDateassignedAfterAndDateassignedBefore(firstDay, lastDay);
+        List<Task> taskList = taskRepository.findAll();
+        assertThat(taskList).hasSize(databaseSizeBeforeCreate + 1);
+        
+        List<MonthWiseStatistics> monthwiseList = taskRepository.getMonthlyScheduleAdherenceBySection(firstDay, lastDay);
+        assertThat(monthwiseList.size()>0);
+        for(MonthWiseStatistics stats:monthwiseList)
+        {
+        	System.out.println("Month is " + stats.getMonth());
+        }
+                     
+		// Get all recordList
+        /*restTaskMockMvc.perform(get("/api/records-this-month?sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    	*/
+}
+
+		
+@GetMapping("/records-this-month")
+    @Timed
+    public Statistics getAllRecords() {
+        log.debug("REST request to get all Records");
+        LocalDate today = LocalDate.now();
+              
+        int currentYear = today.getYear();
+    
+        LocalDate firstDay = today.with(firstDayOfYear()); // 2015-01-01          
+        LocalDate lastDay = today.with(lastDayOfYear()); // 2015-12-31
+        
+        Statistics Statistics = new Statistics();
+        //List<Task> monthwiseList = taskRepository.findAll();
+        //List<Task> monthwiseList = taskRepository.findByDateassignedAfterAndDateassignedBefore(firstDay, lastDay);
+       List<MonthWiseStatistics> monthwiseList = taskRepository.getMonthlyScheduleAdherenceBySection(firstDay, lastDay);
+        System.out.println("monthwiseList size is" + monthwiseList.size());
+        
+       for(MonthWiseStatistics stats:monthwiseList)
+        {
+        	Month day = Month.of(stats.getMonth());
+        	stats.setMonthText(day.getDisplayName(TextStyle.SHORT,Locale.ENGLISH));
+        }
+        
+        Statistics.setMonthWiseStatistics(monthwiseList);
+        
+        return Statistics;
+        
+    }
+
+public interface TaskRepository extends JpaRepository<Task, Long> {
+	
+	List<Task> findByDateassignedAfterAndDateassignedBefore(LocalDate firstDayOfMonth, LocalDate lastDayOfMonth);
+	
+	@Query(value = "SELECT "
+	        + " new com.jhipster.test.web.rest.vm.MonthWiseStatistics(Month(task.dateassigned), COUNT(task))"
+	        + " FROM Task task" 
+	        + " WHERE task.dateassigned BETWEEN :startDate AND :endDate"
+	        + " GROUP BY Month(task.dateassigned) ORDER BY Month(task.dateassigned) DESC")
+	public List <MonthWiseStatistics> getMonthlyScheduleAdherenceBySection(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+}
+
+
+jhipster import-jdl jhipster-jdl.jh
+
+npm install --save ng2-charts@1.60
+
+

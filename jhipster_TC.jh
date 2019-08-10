@@ -1,0 +1,62 @@
+// JDL definition for application 'PROP_MGMNT' generated with command 'jhipster export-jdl'
+
+entity Patient (patient) {
+  name String required,
+  email String,
+  birthdate LocalDate,
+  address String,
+  picture ImageBlob 
+}
+entity Appointment (appointment) {
+  appointmentDate LocalDate required,
+  prescription TextBlob ,
+  status Status required
+}
+
+entity Invoice (invoice) {
+  generatedDate LocalDate required,
+  paidDate LocalDate,
+  type InvoiceType required,
+  incomeCategory IncomeType,
+  expenseCategory ExpenseType,
+  amount Double required,
+  invStatus InvoiceStatus required
+}
+
+enum Status {
+  SCHEDULED,
+  COMPLETED,
+  CANCELLED
+}
+
+enum InvoiceType {
+  Income,
+  Expense
+}
+
+enum IncomeType {
+  Consultation,
+  RootCanal,
+  Cleaning,
+  Storage,
+  Others
+}
+
+enum ExpenseType {
+  Materials,
+  Rentals,
+  StaffSalary,
+  Repairs,
+  Others
+}
+
+enum InvoiceStatus {
+  Generated,
+  Paid
+}
+
+relationship OneToMany {
+  Patient{appointment} to Appointment{patient(name)}
+  Appointment{invoice} to Invoice{appointment}
+  Patient{invoice} to Invoice{patient(name)}
+}

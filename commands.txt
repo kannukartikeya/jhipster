@@ -1,0 +1,360 @@
+1. yo jhipster
+
+
+2. Run it in the development mode 
+./mvnw
+
+
+3. Package and run in the production mode
+	a. Change version of jest to 23.5 for running ui lint based tests - change in package.json only in devdependencies section	
+	
+	b. Change pom.xml to 
+		<dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope> - delete this line as h2 driver needs to be there
+        </dependency>
+		
+	c.go to src/main/resources/config/application-prod.yml
+		spring:
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+        username: PROP_MGMNT
+        password:
+    h2:
+        console:
+            enabled: false
+    jpa:
+        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+        database: H2
+        show-sql: true
+        properties:
+            hibernate.id.new_generator_mappings: true
+            hibernate.cache.use_second_level_cache: false
+	
+	d. ./mvnw -Pprod package
+	
+			
+4. Sonarcube integration 
+
+	a.docker-compose -f src/main/docker/sonar.yml up -d  ( docker-compose -f src/main/docker/sonar.yml down)
+	
+	b../mvnw -Pprod sonar:sonar -Dsonar.host.url=http://localhost:9000
+	
+	c.check UI on localhost:9000
+
+
+5. Heroku Deployment - heroku details - kannu.kartikeya@gmail.com/R***@*01
+
+	a. heroku login
+		provide username/password
+
+	b.jhipster heroku - this should package your application in “production” mode, create an Heroku application with a database, upload your code, and start the application
+	
+			Your app should now be live. To view it run
+				heroku open
+			And you can view the logs with this command
+				heroku logs --tail
+			After application modification, redeploy it with
+				jhipster heroku
+			Congratulations, JHipster execution is complete!
+		
+	c.go to src/main/resources/config/application-heroku.yml 
+	spring:
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+        username: PROP_MGMNT
+        password:
+    h2:
+        console:
+            enabled: false
+    jpa:
+        database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+        database: H2
+        show-sql: true
+        properties:
+            hibernate.id.new_generator_mappings: true
+            hibernate.cache.use_second_level_cache: false
+			
+
+
+	d.heroku apps:destroy - remove an app from cli
+	
+	
+6. Jenkins2 integration 
+
+	a. jhipster ci-cd ( select jenkins - pipeline) - it will generate Jenkins file which can be pushed to heroku git repo as below
+	
+	b. Change jenkins file to stop ui test coverage, append app name and remove sonar scannel 
+		
+		remove finally junit line
+		
+		stage('package and deploy') {
+			sh "./mvnw com.heroku.sdk:heroku-maven-plugin:1.1.1:deploy -DskipTests -Pprod -Dheroku.appName=taskmgmt"
+			archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+    	}
+		
+    	stage('quality analysis') {
+        	sh "./mvnw sonar:sonar -Dsonar.host.url=http://localhost:9000"
+    	}
+
+
+	git add .
+	git commit -m "first commit"
+	git push --set-upstream https://git.heroku.com/taskmgmt.git master
+	
+	
+
+7. jdl development 
+
+jhipster import-jdl jhipster-jdl.jh
+
+class MonthWiseStatistics {
+	int month;
+	String monthText;
+    Double actualTotal;
+}
+	
+public class Statistics {
+	
+private Month month;
+private int year;
+private Double totalCount;
+
+private List<MonthWiseStatistics> monthWiseStatistics;
+
+}
+
+
+{
+
+8. InvoiceResourceIntTest
+Test
+    @Transactional
+    public void getAllInvoicesThisMonth() throws Exception {
+        // Initialize the database
+        LocalDate today = LocalDate.now();
+        LocalDate thisMonth = today.with(firstDayOfMonth());
+        LocalDate lastMonth = thisMonth.minusMonths(1);
+        createIncomeByMonth(thisMonth, lastMonth);
+       // invoiceRepository.saveAndFlush(invoice);
+
+        // Get all the invoiceList
+        restInvoiceMockMvc.perform(get("/api/invoices-this-month?sort=id,desc"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+            /*.andExpect(jsonPath("$.[*].id").value(hasItem(invoice.getId().intValue())))
+            .andExpect(jsonPath("$.[*].generatedDate").value(hasItem(DEFAULT_GENERATED_DATE.toString())))*/
+/*            .andExpect(jsonPath("$.[*].paidDate").value(hasItem(DEFAULT_PAID_DATE.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].incomeCategory").value(hasItem(DEFAULT_INCOME_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].expenseCategory").value(hasItem(DEFAULT_EXPENSE_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].amount").value(hasItem(DEFAULT_AMOUNT.doubleValue())))
+            .andExpect(jsonPath("$.[*].invStatus").value(hasItem(DEFAULT_INV_STATUS.toString())));*/
+    }
+	
+	   private void createIncomeByMonth(LocalDate thisMonth, LocalDate lastMonth) {
+    	User user = userRepository.findOneByLogin("user").get();
+    	// Create Income in two separate months
+    	
+        Invoice invoice = new Invoice()
+                .generatedDate(thisMonth.plusDays(2))
+                .paidDate(DEFAULT_PAID_DATE)
+                .type(DEFAULT_TYPE)
+                .incomeCategory(DEFAULT_INCOME_CATEGORY)
+                .expenseCategory(DEFAULT_EXPENSE_CATEGORY)
+                .amount(DEFAULT_AMOUNT)
+                .invStatus(DEFAULT_INV_STATUS);
+        invoiceRepository.saveAndFlush(invoice);
+        
+        invoice = new Invoice()
+                .generatedDate(thisMonth.plusDays(3))
+                .paidDate(DEFAULT_PAID_DATE)
+                .type(DEFAULT_TYPE)
+                .incomeCategory(DEFAULT_INCOME_CATEGORY)
+                .expenseCategory(DEFAULT_EXPENSE_CATEGORY)
+                .amount(DEFAULT_AMOUNT)
+                .invStatus(DEFAULT_INV_STATUS);
+        invoiceRepository.saveAndFlush(invoice);
+        
+        invoice = new Invoice()
+                .generatedDate(lastMonth.plusDays(3))
+                .paidDate(DEFAULT_PAID_DATE)
+                .type(DEFAULT_TYPE)
+                .incomeCategory(DEFAULT_INCOME_CATEGORY)
+                .expenseCategory(DEFAULT_EXPENSE_CATEGORY)
+                .amount(DEFAULT_AMOUNT)
+                .invStatus(DEFAULT_INV_STATUS);
+        invoiceRepository.saveAndFlush(invoice);
+        
+        invoice = new Invoice()
+                .generatedDate(lastMonth.plusDays(4))
+                .paidDate(DEFAULT_PAID_DATE)
+                .type(DEFAULT_TYPE)
+                .incomeCategory(DEFAULT_INCOME_CATEGORY)
+                .expenseCategory(DEFAULT_EXPENSE_CATEGORY)
+                .amount(DEFAULT_AMOUNT)
+                .invStatus(DEFAULT_INV_STATUS);
+        invoiceRepository.saveAndFlush(invoice);
+
+
+    	}
+		
+		@GetMapping("/invoices-this-month")
+    @Timed
+    public Statistics getAllRecords() {
+        log.debug("REST request to get all Invoices");
+        LocalDate today = LocalDate.now();
+        Month currentMonth = today.getMonth();
+        
+        int currentYear = today.getYear();
+        LocalDate firstDayOfMonth = today.with(firstDayOfMonth());
+        LocalDate lastDayOfMonth = today.with(lastDayOfMonth());
+        
+        LocalDate firstDay = today.with(firstDayOfYear()); // 2015-01-01          
+        LocalDate lastDay = today.with(lastDayOfYear()); // 2015-12-31
+        
+        IncomeExpenseStatistics incomeExpenseStatistics = new IncomeExpenseStatistics(currentMonth,currentYear);
+        
+        List<MonthWiseIncomeExpenseStatistics> monthwiseIncomeList = invoiceRepository.getMonthlyScheduleAdherenceBySection(firstDay, lastDay,"Income");
+        System.out.println("monthwiseIncomeList size is" + monthwiseIncomeList.size());
+        
+        for(MonthWiseIncomeExpenseStatistics stats:monthwiseIncomeList)
+        {
+        	Month day = Month.of(stats.getMonth());
+        	stats.setMonthText(day.getDisplayName(TextStyle.SHORT,Locale.ENGLISH));
+        }
+        
+        incomeExpenseStatistics.setMonthWiseIncomeStatistics(monthwiseIncomeList);
+        
+        List<MonthWiseIncomeExpenseStatistics> monthwiseExpenseList = invoiceRepository.getMonthlyScheduleAdherenceBySection(firstDay, lastDay,"Expense");
+        System.out.println("monthwiseExpenseList size is" + monthwiseExpenseList.size());
+        
+        for(MonthWiseIncomeExpenseStatistics stats:monthwiseExpenseList)
+        {
+        	Month day = Month.of(stats.getMonth());
+        	stats.setMonthText(day.getDisplayName(TextStyle.SHORT,Locale.ENGLISH));
+        }
+        
+        incomeExpenseStatistics.setMonthWiseExpenseStatistics(monthwiseExpenseList);
+        
+        List<Invoice> readings =
+        		invoiceRepository.findByGeneratedDateAfterAndGeneratedDateBefore(firstDayOfMonth,
+        				lastDayOfMonth);
+       
+        for(Invoice inv:readings)
+        {
+        	if(inv.getType().equals(InvoiceType.Income))
+        		incomeExpenseStatistics.setTotalMonthlyIncome(incomeExpenseStatistics.getTotalMonthlyIncome()+inv.getAmount());
+        	else
+        		incomeExpenseStatistics.setTotalMonthlyExpense(incomeExpenseStatistics.getTotalMonthlyExpense()+inv.getAmount());
+        }
+        
+        
+        List<Invoice> yearlyreadings =
+        		invoiceRepository.findByGeneratedDateAfterAndGeneratedDateBefore(firstDay,
+        				lastDay);
+        for(Invoice inv:yearlyreadings)
+        {
+        	if(inv.getType().equals(InvoiceType.Income))
+        		incomeExpenseStatistics.setTotalYearlyIncome(incomeExpenseStatistics.getTotalYearlyIncome()+inv.getAmount());
+        	else
+        		incomeExpenseStatistics.setTotalYearlyExpense(incomeExpenseStatistics.getTotalYearlyExpense()+inv.getAmount());
+        }
+        return incomeExpenseStatistics;
+        
+    }
+	
+	
+	@Repository
+public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
+
+	List<Invoice> findByGeneratedDateAfterAndGeneratedDateBefore(LocalDate firstDayOfMonth, LocalDate lastDayOfMonth);
+	
+	@Query(value = "SELECT "
+	        + " new com.blockbrain.propmgmnt.web.rest.vm.MonthWiseIncomeExpenseStatistics(Month(invoice.generatedDate), SUM(invoice.amount))"
+	        + " FROM Invoice invoice" 
+	        + " WHERE invoice.generatedDate BETWEEN :startDate AND :endDate"
+	        + " AND JHI_TYPE = :type"
+	        + " GROUP BY Month(invoice.generatedDate) ORDER BY Month(invoice.generatedDate) DESC")
+	public List <MonthWiseIncomeExpenseStatistics> getMonthlyScheduleAdherenceBySection(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,
+			@Param("type") String type);
+	
+
+}
+
+
+home.component.ts
+
+    public barChartOptions: any = {
+        scaleShowVerticalLines: false,
+        responsive: true,
+        title: {
+            text: 'MonthWise Task Distribution',
+            display: true
+        },
+        scales: {
+            yAxes: [{ id: 'y-axis-1', type: 'linear', position: 'left', ticks: { min: 0 } }]
+        }
+    };
+
+    public barchartdata = [0];
+    public barChartLabels: string[] = [];
+
+getIncomeExpenseForThisMonth() {
+        this.invoiceService.thisMonth().subscribe(
+            (res: any) => {
+
+                this.barchartdata = [];
+                for (let i = res.body.monthWiseIncomeStatistics.length - 1; i >= 0; i--) {
+                    this.barchartdata.push(res.body.monthWiseIncomeStatistics[i].actualTotal);
+                    this.barChartLabels.push(res.body.monthWiseIncomeStatistics[i].monthText);
+                }
+            },
+            (res: HttpErrorResponse) => this.onError(res.message)
+        );
+    }
+	
+	
+	InvoiceService(task.service.ts)
+	
+	 private resourceUrl2 = SERVER_API_URL + 'api/invoices-this-month';
+	 
+	
+	    thisMonth(req?: any): Observable<EntityResponseType> {
+        const options = createRequestOption(req);
+        return this.http
+            .get<ITask>(this.resourceUrl2, { params: options, observe: 'response' })
+            .map((res: EntityResponseType) => this.convertDateFromServer(res));
+    }
+
+
+
+/githubprojects/jhipster/TASKTEST/src/main/webapp/app/home/home.component.html
+
+         <div class="row" *ngSwitchCase="true">
+                       <div class="col-md-6 mb-3">
+                            <div class="card card-shadow p-3">
+                        <canvas baseChart
+                            [data]="barchartdata"
+                            [options]="barChartOptions"
+                            [labels]="barChartLabels"
+                            [legend]="false"
+                            [chartType]="'bar'"
+                            >
+                        </canvas>
+                        </div>
+                    </div>
+                </div>
+
+app.module.ts
+import { ChartsModule } from 'ng2-charts';
+imports: [
+ChartsModule
+]
+
+npm install --save ng2-charts
+
+jhipster import-jdl jhipster-jdl.jh
