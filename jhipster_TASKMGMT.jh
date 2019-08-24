@@ -2,17 +2,25 @@
 
 entity Owner (owner) {
   name String,
-  email String
+  email String,
+  picture ImageBlob 
 }
 entity Task (task) {
-  name String required,
+  processType ProcessType required,
+  taskName String required,
   description String,
-  dateassigned ZonedDateTime,
+  appliesTo String,
   datecompletion ZonedDateTime,
   status Status,
   priority Priority
 }
 
+enum ProcessType {
+  Clarifications,
+  Indexing,
+  Spreading,
+  Originations
+}
 enum Status {
   SCHEDULED,
   STARTED,
@@ -21,11 +29,9 @@ enum Status {
 }
 
 enum Priority {
-  HIGHEST,
   HIGH,
   NORMAL,
-  LOW,
-  LOWEST
+  LOW
 }
 
 relationship OneToMany {
