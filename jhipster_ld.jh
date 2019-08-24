@@ -1,0 +1,55 @@
+	// JDL definition for application 'FilmSolutions' generated with command 'jhipster export-jdl'
+
+entity Project (project) {
+  projectname String required,
+  lob String,
+  status DealStatus,
+  isSecured Boolean
+}
+enum DealStatus {
+  ACTIVE,
+  CLOSED,
+  ONHOLD
+}
+entity Team (team) {
+  who String,
+  role Role,
+  isExternal Boolean,
+  picture ImageBlob 
+}
+enum Role {
+  DISBURSER,
+  CLOSER,
+  CA
+}
+entity Budget (budget) {
+  budgetName String required,
+  hardCost BigDecimal,
+  softCost BigDecimal,
+  interestReserve BigDecimal
+}
+entity Draw (draw) {
+  drawNo Integer,
+  requestedDate ZonedDateTime,
+  requestedAmount BigDecimal,
+  TotalItemised BigDecimal,
+  drawType DrawType,
+  drawStatus DrawStatus
+}
+enum DrawType {
+  REGULAR,
+  CLOSING,
+  ADJUSTMENT, 
+  IR
+}
+enum DrawStatus {
+  PENDING,
+  FUNDED
+}
+
+relationship OneToMany {
+  Team{project} to Project{team(who)}
+  Budget{draw} to Draw{budget(budgetName)}
+}
+
+paginate Draw, Project with pager

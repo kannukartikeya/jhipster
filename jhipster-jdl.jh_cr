@@ -1,0 +1,53 @@
+// JDL definition for application 'FilmSolutions' generated with command 'jhipster export-jdl'
+
+entity Owner (owner) {
+  name String required,
+  email String
+}
+entity Task (task) {
+  taskType Type required,
+  process String ,
+  appliesTo String,
+  taskName String required,
+  description String,
+  dateassigned ZonedDateTime,
+  datecompletion ZonedDateTime,
+  status Status,
+  priority Priority
+}
+
+enum Type {
+  Spreading,
+  Clarification,
+  Indexing,
+  Originations,
+  Inspection
+}
+
+enum Status {
+  SCHEDULED,
+  STARTED,
+  COMPLETED,
+  ONHOLD,
+  DELETED
+}
+
+enum Priority {
+  HIGHEST,
+  HIGH,
+  NORMAL,
+  LOW,
+  LOWEST
+}
+
+relationship OneToMany {
+  Owner{task} to Task{owner(name)}
+}
+
+relationship ManyToOne {
+  Task{user(login)} to User
+}
+
+paginate Owner, Task with pager
+service Owner, Task with serviceImpl
+filter Task
