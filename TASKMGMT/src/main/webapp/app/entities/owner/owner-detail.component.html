@@ -1,0 +1,51 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="owner">
+            <h2><span jhiTranslate="taskmgmtApp.owner.detail.title">Owner</span> {{owner.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="taskmgmtApp.owner.name">Name</span></dt>
+                <dd>
+                    <span>{{owner.name}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.owner.email">Email</span></dt>
+                <dd>
+                    <span>{{owner.email}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.owner.picture">Picture</span></dt>
+                <dd>
+                    <div *ngIf="owner.picture">
+                        <a (click)="openFile(owner.pictureContentType, owner.picture)">
+                            <img [src]="'data:' + owner.pictureContentType + ';base64,' + owner.picture" style="max-width: 100%;" alt="owner image"/>
+                        </a>
+                        {{owner.pictureContentType}}, {{byteSize(owner.picture)}}
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.owner.agreement">Agreement</span></dt>
+                <dd>
+                    <div *ngIf="owner.agreement">
+                        <a (click)="openFile(owner.agreementContentType, owner.agreement)" jhiTranslate="entity.action.open">open</a>
+                        {{owner.agreementContentType}}, {{byteSize(owner.agreement)}}
+                    </div>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.owner.textagreement">Textagreement</span></dt>
+                <dd>
+                    <span>{{owner.textagreement}}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/owner', owner.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+{
+    "taskmgmtApp": {
+        "Status" : {
+            "null": "",
+            "SCHEDULED": "SCHEDULED",
+            "STARTED": "STARTED",
+            "COMPLETED": "COMPLETED",
+            "ONHOLD": "ONHOLD"
+        }
+    }
+}

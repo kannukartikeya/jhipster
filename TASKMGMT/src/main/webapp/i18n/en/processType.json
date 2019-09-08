@@ -1,0 +1,11 @@
+{
+    "taskmgmtApp": {
+        "ProcessType" : {
+            "null": "",
+            "Clarifications": "Clarifications",
+            "Indexing": "Indexing",
+            "Spreading": "Spreading",
+            "Originations": "Originations"
+        }
+    }
+}

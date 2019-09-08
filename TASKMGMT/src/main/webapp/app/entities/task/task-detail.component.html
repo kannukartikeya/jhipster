@@ -1,0 +1,57 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="task">
+            <h2><span jhiTranslate="taskmgmtApp.task.detail.title">Task</span> {{task.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="taskmgmtApp.task.processType">Process Type</span></dt>
+                <dd>
+                    <span jhiTranslate="{{'taskmgmtApp.ProcessType.' + task.processType}}">{{task.processType}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.taskName">Task Name</span></dt>
+                <dd>
+                    <span>{{task.taskName}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.description">Description</span></dt>
+                <dd>
+                    <span>{{task.description}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.appliesTo">Applies To</span></dt>
+                <dd>
+                    <span>{{task.appliesTo}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.datecompletion">Datecompletion</span></dt>
+                <dd>
+                    <span>{{task.datecompletion}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.status">Status</span></dt>
+                <dd>
+                    <span jhiTranslate="{{'taskmgmtApp.Status.' + task.status}}">{{task.status}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.priority">Priority</span></dt>
+                <dd>
+                    <span jhiTranslate="{{'taskmgmtApp.Priority.' + task.priority}}">{{task.priority}}</span>
+                </dd>
+                <dt><span jhiTranslate="taskmgmtApp.task.owner">Owner</span></dt>
+                <dd>
+                    <div *ngIf="task.owner">
+                        <a [routerLink]="['/owner', task.owner?.id, 'view']">{{task.owner?.name}}</a>
+                    </div>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/task', task.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

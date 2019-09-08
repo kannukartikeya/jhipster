@@ -1,0 +1,11 @@
+version: '2'
+services:
+    taskmgmt-postgresql:
+        image: postgres:10.4
+        # volumes:
+        #     - ~/volumes/jhipster/TASKMGMT/postgresql/:/var/lib/postgresql/data/
+        environment:
+            - POSTGRES_USER=TASKMGMT
+            - POSTGRES_PASSWORD=
+        ports:
+            - 5432:5432

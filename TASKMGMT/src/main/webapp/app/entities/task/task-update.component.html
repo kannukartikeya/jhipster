@@ -1,0 +1,91 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+            <h2 id="jhi-task-heading" jhiTranslate="taskmgmtApp.task.home.createOrEditLabel">Create or edit a Task</h2>
+            <div>
+                <jhi-alert-error></jhi-alert-error>
+                <div class="form-group" [hidden]="!task.id">
+                    <label for="id" jhiTranslate="global.field.id">ID</label>
+                    <input type="text" class="form-control" id="id" name="id"
+                        [(ngModel)]="task.id" readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.processType" for="field_processType">Process Type</label>
+                    <select class="form-control" name="processType" [(ngModel)]="task.processType" id="field_processType"  required>
+                        <option value="Clarifications">{{'taskmgmtApp.ProcessType.Clarifications' | translate}}</option>
+                        <option value="Indexing">{{'taskmgmtApp.ProcessType.Indexing' | translate}}</option>
+                        <option value="Spreading">{{'taskmgmtApp.ProcessType.Spreading' | translate}}</option>
+                        <option value="Originations">{{'taskmgmtApp.ProcessType.Originations' | translate}}</option>
+                    </select>
+                    <div [hidden]="!(editForm.controls.processType?.dirty && editForm.controls.processType?.invalid)">
+                        <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.processType?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.taskName" for="field_taskName">Task Name</label>
+                    <input type="text" class="form-control" name="taskName" id="field_taskName"
+                        [(ngModel)]="task.taskName" required/>
+                    <div [hidden]="!(editForm.controls.taskName?.dirty && editForm.controls.taskName?.invalid)">
+                        <small class="form-text text-danger"
+                        [hidden]="!editForm.controls.taskName?.errors?.required" jhiTranslate="entity.validation.required">
+                        This field is required.
+                        </small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.description" for="field_description">Description</label>
+                    <input type="text" class="form-control" name="description" id="field_description"
+                        [(ngModel)]="task.description" />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.appliesTo" for="field_appliesTo">Applies To</label>
+                    <input type="text" class="form-control" name="appliesTo" id="field_appliesTo"
+                        [(ngModel)]="task.appliesTo" />
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.datecompletion" for="field_datecompletion">Datecompletion</label>
+                    <div class="d-flex">
+                        <input id="field_datecompletion" type="datetime-local" class="form-control" name="datecompletion" [(ngModel)]="datecompletion"
+                        />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.status" for="field_status">Status</label>
+                    <select class="form-control" name="status" [(ngModel)]="task.status" id="field_status" >
+                        <option value="SCHEDULED">{{'taskmgmtApp.Status.SCHEDULED' | translate}}</option>
+                        <option value="STARTED">{{'taskmgmtApp.Status.STARTED' | translate}}</option>
+                        <option value="COMPLETED">{{'taskmgmtApp.Status.COMPLETED' | translate}}</option>
+                        <option value="ONHOLD">{{'taskmgmtApp.Status.ONHOLD' | translate}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.priority" for="field_priority">Priority</label>
+                    <select class="form-control" name="priority" [(ngModel)]="task.priority" id="field_priority" >
+                        <option value="HIGH">{{'taskmgmtApp.Priority.HIGH' | translate}}</option>
+                        <option value="NORMAL">{{'taskmgmtApp.Priority.NORMAL' | translate}}</option>
+                        <option value="LOW">{{'taskmgmtApp.Priority.LOW' | translate}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-control-label" jhiTranslate="taskmgmtApp.task.owner" for="field_owner">Owner</label>
+                    <select class="form-control" id="field_owner" name="owner" [(ngModel)]="task.owner" >
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="ownerOption.id === task.owner?.id ? task.owner : ownerOption" *ngFor="let ownerOption of owners; trackBy: trackOwnerById">{{ownerOption.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
+                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                </button>
+                <button type="submit" id="save-entity" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

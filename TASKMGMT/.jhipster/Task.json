@@ -1,0 +1,59 @@
+{
+    "name": "Task",
+    "fields": [
+        {
+            "fieldName": "processType",
+            "fieldType": "ProcessType",
+            "fieldValues": "Clarifications,Indexing,Spreading,Originations",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "taskName",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "appliesTo",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "datecompletion",
+            "fieldType": "ZonedDateTime"
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "Status",
+            "fieldValues": "SCHEDULED,STARTED,COMPLETED,ONHOLD"
+        },
+        {
+            "fieldName": "priority",
+            "fieldType": "Priority",
+            "fieldValues": "HIGH,NORMAL,LOW"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "owner",
+            "otherEntityName": "owner",
+            "otherEntityField": "name"
+        }
+    ],
+    "changelogDate": "20190821094617",
+    "entityTableName": "task",
+    "dto": "no",
+    "pagination": "pager",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

@@ -1,0 +1,40 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.jhipster.taskmgmt",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "5.0.0",
+    "applicationType": "monolith",
+    "baseName": "TASKMGMT",
+    "packageName": "com.jhipster.taskmgmt",
+    "packageFolder": "com/jhipster/taskmgmt",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "no",
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Memory",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "e9b5141d7670f08c36ce0a0161715333a3d8784f",
+    "clientFramework": "angularX",
+    "useSass": false,
+    "clientPackageManager": "npm",
+    "testFrameworks": [
+      "gatling",
+      "protractor"
+    ],
+    "jhiPrefix": "jhi",
+    "enableTranslation": true,
+    "nativeLanguage": "en",
+    "languages": [
+      "en"
+    ],
+    "herokuDeployType": "jar"
+  }
+}
